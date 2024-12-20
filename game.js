@@ -1,4 +1,4 @@
-const canv = document.getElementById('myCanvas');
+const canv = document.getElementById('gameCanvas');
 const ctx = canv.getContext('2d');
 
 const cardWidth = 150;
@@ -84,6 +84,36 @@ document.addEventListener('keydown', function (event) {
     }
     if (event.key === 'p' && displayedCards.length < 18) {
         //drawNext3Cards(false);
+    }
+});
+
+canv.addEventListener('click', function(event) {
+    const rect = canv.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    for (let i = 0; i < displayedCards.length; i++) {
+        const x = startX + (i % 3) * (cardWidth + cardGap);
+        const y = startY + Math.floor(i / 3) * (cardHeight + cardGap);
+
+        if (mouseX >= x && mouseX <= x + cardWidth && mouseY >= y && mouseY <= y + cardHeight) {
+            indexesSelected[i] = indexesSelected[i] === 0 ? 1 : 0;
+            if (indexesSelected.filter(x => x === 1).length === 3) {
+                const selectedCards = indexesSelected.map(
+                    (x, i) => x === 1 ? displayedCards[i] : null
+                ).filter(x => x !== null);
+
+                if (findSets(selectedCards).length > 0) {
+                    drawNext3Cards(true);
+                    displayMessage("Valid Set!", "green");
+                } else {
+                    displayMessage("That's not a set!", "red");
+                }
+                indexesSelected.fill(0);
+            }
+            drawCards();
+            break;
+        }
     }
 });
 
